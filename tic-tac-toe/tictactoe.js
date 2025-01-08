@@ -11,6 +11,9 @@ const button = [
     document.getElementById("8"),
 ]
 
+const gameDiv = document.getElementById("game");
+const endDisplay = document.getElementById("end-display");
+
 const chooseBanner = document.getElementById("choose-banner");
 const chooseX = document.getElementById("x")
 const chooseO = document.getElementById("o")
@@ -36,9 +39,11 @@ const winningCombinations = [
 function checkWinner() {
     for ([a, b, c] of winningCombinations) {
         if (board[a] && board[a] == board[b] && board[a] == board[c]) {
-            console.log(`Winner is ${board[a]}!`)
+            console.log(`Winner is ${board[a]}!`);
+            return true;
         }
     }
+    return false;
 }
 
 function change(buttonNum) {
@@ -46,14 +51,30 @@ function change(buttonNum) {
     if (button[buttonNum].innerHTML != 'o' && button[buttonNum].innerHTML != 'x') {
         button[buttonNum].innerHTML = turn;
         board[buttonNum] = turn;
+        //checks if the game is won, if so it will cease to continue its normal functions and will return the value to display to the display
+        console.log("passed")
+        if (checkWinner() === false) {
+            turn = turn == 'o' ? 'x' : 'o';
 
-        checkWinner();
-        turn = turn == 'o' ? 'x' : 'o';
-
-        if (roundCounter >= maxRounds) {
-            console.log("round ended!");
+            if (roundCounter >= maxRounds) {
+                gameDiv.style.display = "none";
+                endDisplay.innerHTML += `
+                <h1>It's a tie.</h1>
+                <button id="restart">Play again?</button>
+                `;
+                document.getElementById("restart").addEventListener('click', () => {location.reload()});
+            }
+            roundCounter++;
+        } else {
+            //if game is won, function will return a win msg
+            gameDiv.style.display = "none";
+            endDisplay.innerHTML += `
+                <h1>${turn} has won the game.</h1>
+                <button id="restart">Play again?</button>
+                `;
+            document.getElementById("restart").addEventListener('click', () => {location.reload()});
         }
-        roundCounter++;
+        
     }
 
 }
@@ -70,13 +91,6 @@ function chooseBox() {
     button[8].addEventListener('click', () => {change(8)});
 }
 
-function rounds(turn) {
-    chooseBox(turn);
-}
-
-function choose() {
-    chooseX.addEventListener('click', () => {chooseBanner.style.display = "none"; turn = 'x'; rounds();});
-    chooseO.addEventListener('click', () => {chooseBanner.style.display = "none"; turn = 'o'; rounds();});
-}
-
-choose()
+//start code
+chooseX.addEventListener('click', () => {chooseBanner.style.display = "none"; turn = 'x'; chooseBox();});
+chooseO.addEventListener('click', () => {chooseBanner.style.display = "none"; turn = 'o'; chooseBox();});
